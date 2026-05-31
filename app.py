@@ -237,7 +237,7 @@ def post_session():
             "email": email,
             "amount": bill,
             "metadata": metadata,
-            "callback_url": " http://127.0.0.1:8000/callback"  # 🔁 Paystack will redirect here
+            "callback_url": " https://med-flow-9yyy.onrender.com/callback"  # 🔁 Paystack will redirect here
         }
 
         response = requests.post(PAYSTACK_INITIALIZE_URL, json=payload, headers=headers)

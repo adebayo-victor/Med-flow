@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 hours: clinicHours.value
             };
         
-            fetch(" http://127.0.0.1:8000/update_clinic_info", {
+            fetch(" https://med-flow-9yyy.onrender.com/update_clinic_info", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
             // Handle Delete Service
             if (target.classList.contains('service-delete')) {
                 const payload = { id: serviceId };
-                fetch(" http://127.0.0.1:8000/delete_service", {
+                fetch(" https://med-flow-9yyy.onrender.com/delete_service", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 icon_class: document.getElementById('edit_service_icon').value // Include icon class in update
             };
         
-            fetch(" http://127.0.0.1:8000/update_service", {
+            fetch(" https://med-flow-9yyy.onrender.com/update_service", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -255,7 +255,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 icon_class: iconName // Use the selected iconName
             };
         
-            fetch(" http://127.0.0.1:8000/add_service", {
+            fetch(" https://med-flow-9yyy.onrender.com/add_service", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -337,7 +337,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 id:event.target.closest('tr').getAttribute('appointment-id')
             };
         
-            fetch(" http://127.0.0.1:8000/fetch_appointments", {
+            fetch(" https://med-flow-9yyy.onrender.com/fetch_appointments", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -398,7 +398,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 email:document.querySelector('#appointment-email').value
             };
         
-            fetch(" http://127.0.0.1:8000/validate_appointment", {
+            fetch(" https://med-flow-9yyy.onrender.com/validate_appointment", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -437,7 +437,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 seconds:expirySeconds.value
             };
         
-            fetch(" http://127.0.0.1:8000/set_expiry", {
+            fetch(" https://med-flow-9yyy.onrender.com/set_expiry", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -477,7 +477,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
             // Handle Delete Member
             if (target.classList.contains('member-delete-btn') || target.id === 'member_delete') { // Check for class or ID
                 const payload = { id: memberId };
-                fetch(" http://127.0.0.1:8000/delete_member", {
+                fetch(" https://med-flow-9yyy.onrender.com/delete_member", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
@@ -521,7 +521,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 image_url:document.querySelector('#member_image').value,
             };
         
-            fetch(" http://127.0.0.1:8000/add_member", {
+            fetch(" https://med-flow-9yyy.onrender.com/add_member", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -589,7 +589,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 input: searchInput.value
             };
         
-            fetch(" http://127.0.0.1:8000/search_appointment", {
+            fetch(" https://med-flow-9yyy.onrender.com/search_appointment", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

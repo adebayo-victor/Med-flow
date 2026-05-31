@@ -1413,7 +1413,7 @@
                     adminLoginMessage.style.color = 'gray';
 
                     try {
-                        const response = await fetch(' http://127.0.0.1:8000/admin_login', {
+                        const response = await fetch(' https://med-flow-9yyy.onrender.com/admin_login', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -1514,7 +1514,7 @@
                     forgotPasswordSuccessDisplay.classList.add('hidden');
 
                     try {
-                        const response = await fetch(' http://127.0.0.1:8000/change_admin_password', {
+                        const response = await fetch(' https://med-flow-9yyy.onrender.com/change_admin_password', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ email: email, position: position })
@@ -1579,7 +1579,7 @@
                         console.log(`Approving testimonial with ID: ${testimonialId}`);
                         // Add your AJAX call or backend logic here to approve the testimonial
                         // After successful approval, you might want to update the status visually in the summary box
-                        fetch(" http://127.0.0.1:8000/approve_testimonial", {
+                        fetch(" https://med-flow-9yyy.onrender.com/approve_testimonial", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ id: testimonialId })
@@ -1610,7 +1610,7 @@
                             id: testimonialId
                         };
                     
-                        fetch(" http://127.0.0.1:8000/delete_testimonial", {
+                        fetch(" https://med-flow-9yyy.onrender.com/delete_testimonial", {
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json"
@@ -1637,7 +1637,7 @@
                         const testimonialId = target.dataset.id;
                         console.log(`Toggling status for testimonial with ID: ${testimonialId}`);
                         
-                        fetch(" http://127.0.0.1:8000/toggle_testimonial_status", {
+                        fetch(" https://med-flow-9yyy.onrender.com/toggle_testimonial_status", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ id: testimonialId })
@@ -1727,7 +1727,7 @@
                         phone_number: document.getElementById('update_member_phone').value // New
                     };
                 
-                    fetch(" http://127.0.0.1:8000/update_member", {
+                    fetch(" https://med-flow-9yyy.onrender.com/update_member", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json"
@@ -1797,7 +1797,7 @@
                     }
 
                     try {
-                        const response = await fetch(" http://127.0.0.1:8000/add_member", {
+                        const response = await fetch(" https://med-flow-9yyy.onrender.com/add_member", {
                             method: "POST",
                             body: formData // FormData automatically sets Content-Type to multipart/form-data
                         });
@@ -1851,7 +1851,7 @@
                         fa_icon_class: document.getElementById('edit_service_icon').value
                     };
                 
-                    fetch(" http://127.0.0.1:8000/update_service", {
+                    fetch(" https://med-flow-9yyy.onrender.com/update_service", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json"
@@ -1919,7 +1919,7 @@
             // Event listener for "Total Patients" card click
             if (totalPatientsCard) {
                 totalPatientsCard.addEventListener('click', () => {
-                    fetch(" http://127.0.0.1:8000/fetch_all_patients")
+                    fetch(" https://med-flow-9yyy.onrender.com/fetch_all_patients")
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status}`);
@@ -1979,7 +1979,7 @@
                     const patientId = patientRow.getAttribute('data-patient-id');
                     currentPatientId = patientId; // Set current patient ID for update form
 
-                    fetch(` http://127.0.0.1:8000/fetch_patient_details/${patientId}`)
+                    fetch(` https://med-flow-9yyy.onrender.com/fetch_patient_details/${patientId}`)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status}`);
@@ -2056,7 +2056,7 @@
                         payload.password = updatePatientPasswordInput.value;
                     }
 
-                    fetch(" http://127.0.0.1:8000/update_patient", {
+                    fetch(" https://med-flow-9yyy.onrender.com/update_patient", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(payload)
@@ -2099,7 +2099,7 @@
                     return;
                 }
 
-                fetch(" http://127.0.0.1:8000/fetch_all_bills")
+                fetch(" https://med-flow-9yyy.onrender.com/fetch_all_bills")
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status}`);
@@ -2192,7 +2192,7 @@
                         seconds: seconds
                     };
 
-                    fetch(" http://127.0.0.1:8000/set_appointment_expiry", {
+                    fetch(" https://med-flow-9yyy.onrender.com/set_appointment_expiry", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(payload)
@@ -2221,7 +2221,7 @@
                 appointmentSearchInput.addEventListener('input', (event) => {
                     const searchQuery = event.target.value.toLowerCase();
 
-                    fetch(" http://127.0.0.1:8000/search_appointment", {
+                    fetch(" https://med-flow-9yyy.onrender.com/search_appointment", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ input: searchQuery })
@@ -2284,7 +2284,7 @@
                 visitsTableBody.innerHTML = `<tr><td colspan="7" class="py-4 text-center text-gray-400">Loading website visit data...</td></tr>`;
 
                 try {
-                    const response = await fetch(` http://127.0.0.1:8000/fetch_all_visits`);
+                    const response = await fetch(` https://med-flow-9yyy.onrender.com/fetch_all_visits`);
                     if (!response.ok) throw new Error('Failed to fetch website visits');
                     const visitsData = await response.json(); // Expected: Array of objects
 
@@ -2393,7 +2393,7 @@
                     }
 
                     try {
-                        const response = await fetch(" http://127.0.0.1:8000/post_blog", {
+                        const response = await fetch(" https://med-flow-9yyy.onrender.com/post_blog", {
                             method: "POST",
                             body: formData // FormData automatically sets Content-Type to multipart/form-data
                         });

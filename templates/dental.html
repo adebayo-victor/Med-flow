@@ -403,7 +403,7 @@
                 <a href="#gallery" class="text-white hover:text-[#E00000] transition-colors duration-300 text-lg">Gallery</a>
                 <a href="#testimonials" class="text-white hover:text-[#E00000] transition-colors duration-300 text-lg">Testimonials</a>
                 <a href="#contact" class="text-white hover:text-[#E00000] transition-colors duration-300 text-lg">Booking</a>
-                <a href=" http://127.0.0.1:8000/blog" class="block px-4 py-2 text-white hover:bg-[#2C2C40] transition-colors duration-300">Blog</a>
+                <a href=" https://med-flow-9yyy.onrender.com/blog" class="block px-4 py-2 text-white hover:bg-[#2C2C40] transition-colors duration-300">Blog</a>
                 <a href="#" id="myAppointmentsNavLink" class="text-white hover:text-[#E00000] transition-colors duration-300 text-lg">My Appointments</a>
                 <button id="logoutButton" class="text-white hover:text-[#E00000] transition-colors duration-300 text-lg bg-transparent border border-[#E00000] px-4 py-2 rounded-full">Logout</button>
             </div>
@@ -421,7 +421,7 @@
             <a href="#gallery" class="block px-4 py-2 text-white hover:bg-[#2C2C40] transition-colors duration-300">Gallery</a>
             <a href="#testimonials" class="block px-4 py-2 text-white hover:bg-[#2C2C40] transition-colors duration-300">Testimonials</a>
             <a href="#contact" class="block px-4 py-2 text-white hover:bg-[#2C2C40] transition-colors duration-300">Booking</a>
-            <a href=" http://127.0.0.1:8000/blog" class="block px-4 py-2 text-white hover:bg-[#2C2C40] transition-colors duration-300">Blog</a>
+            <a href=" https://med-flow-9yyy.onrender.com/blog" class="block px-4 py-2 text-white hover:bg-[#2C2C40] transition-colors duration-300">Blog</a>
             <a href="#" id="myAppointmentsNavLinkA" class="block px-4 py-2 text-white hover:bg-[#2C2C40] transition-colors duration-300">My Appointments</a>
             <button id="mobileLogoutButton" class="block w-full text-left px-4 py-2 text-white hover:bg-[#2C2C40] transition-colors duration-300 bg-transparent border border-[#E00000] rounded-full mt-2">Logout</button>
         </div>
@@ -1451,8 +1451,8 @@
                     if (bookingEmailInput) bookingEmailInput.value = userData.email || '';
                     if (testimonialNameInput) testimonialNameInput.value = userData.full_name || '';
                     if (testimonialEmailInput) testimonialEmailInput.value = userData.email || '';
-                    appointmentAnchor.setAttribute('href',' http://127.0.0.1:8000/' + 'my_appointments/' + userData.id)
-                    appointmentAnchorA.setAttribute('href',' http://127.0.0.1:8000/' + 'my_appointments/' + userData.id)
+                    appointmentAnchor.setAttribute('href',' https://med-flow-9yyy.onrender.com/' + 'my_appointments/' + userData.id)
+                    appointmentAnchorA.setAttribute('href',' https://med-flow-9yyy.onrender.com/' + 'my_appointments/' + userData.id)
                 }
             }
 
@@ -1530,7 +1530,7 @@
                     const password = document.getElementById('login_password').value;
 
                     try {
-                        const response = await fetch(' http://127.0.0.1:8000/login', { // Replace with your actual login endpoint
+                        const response = await fetch(' https://med-flow-9yyy.onrender.com/login', { // Replace with your actual login endpoint
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -1546,8 +1546,8 @@
                             loginMessage.style.color = 'green';
                             //set appointment link
                             console.log(appointmentAnchor)
-                            appointmentAnchor.setAttribute('href',' http://127.0.0.1:8000/' + 'my_appointments/' + data[0]['id'])
-                            appointmentAnchorA.setAttribute('href',' http://127.0.0.1:8000/' + 'my_appointments/' + data[0]['id'])
+                            appointmentAnchor.setAttribute('href',' https://med-flow-9yyy.onrender.com/' + 'my_appointments/' + data[0]['id'])
+                            appointmentAnchorA.setAttribute('href',' https://med-flow-9yyy.onrender.com/' + 'my_appointments/' + data[0]['id'])
                             console.log('appointment link', appointmentAnchor.getAttribute('href'))
                             // Store the entire user object (data[0])
                             sessionStorage.setItem('loggedInUser', JSON.stringify(data[0])); 
@@ -1579,7 +1579,7 @@
                     const password = document.getElementById('signup_password').value;
 
                     try {
-                        const response = await fetch(' http://127.0.0.1:8000/signup', { // Replace with your actual signup endpoint
+                        const response = await fetch(' https://med-flow-9yyy.onrender.com/signup', { // Replace with your actual signup endpoint
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -1625,7 +1625,7 @@
                     testimonialMessage.style.color = 'gray';
 
                     try {
-                        const response = await fetch(' http://127.0.0.1:8000/post_testimonial', {
+                        const response = await fetch(' https://med-flow-9yyy.onrender.com/post_testimonial', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -1743,7 +1743,7 @@
                     forgotPasswordSuccessMessage.classList.add('hidden');
 
                     try {
-                        const response = await fetch(' http://127.0.0.1:8000/get_otp', {
+                        const response = await fetch(' https://med-flow-9yyy.onrender.com/get_otp', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ id: userEmailForOtp }) // 'id' is the email
@@ -1788,7 +1788,7 @@
 
                     try {
                         // Step 1: Validate OTP
-                        const validateOtpResponse = await fetch(' http://127.0.0.1:8000/validate_otp', {
+                        const validateOtpResponse = await fetch(' https://med-flow-9yyy.onrender.com/validate_otp', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ id: userEmailForOtp, otp: otp })
@@ -1832,7 +1832,7 @@
                     otpInput.value = ''; // Clear previous OTP
 
                     try {
-                        const response = await fetch(' http://127.0.0.1:8000/get_otp', {
+                        const response = await fetch(' https://med-flow-9yyy.onrender.com/get_otp', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ id: userEmailForOtp })
@@ -1893,7 +1893,7 @@
 
                     try {
                         // This is the call to the backend for changing the password
-                        const response = await fetch(' http://127.0.0.1:8000/change_password', {
+                        const response = await fetch(' https://med-flow-9yyy.onrender.com/change_password', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ id: userEmailForOtp, password: newPassword }) // 'id' is the email, 'password' is the new password
