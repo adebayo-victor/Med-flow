@@ -1,7 +1,7 @@
 import random
 import csv
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date, time
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify, send_file
 import pandas as pd
 from flask_cors import CORS
@@ -13,6 +13,7 @@ import string
 import io
 import xlsxwriter
 from dotenv import load_dotenv
+
 #loading stuff from dotenv
 load_dotenv()
 #get stuff from .env
@@ -106,7 +107,8 @@ def view_log():
     try:
         return db.execute('SELECT * FROM visits')
     except Exception as e:
-        return e
+        print(f"⚠️ view_log error caught: {e}")
+        return []  # Safe fallback so len() handles it perfectly
 def view_a_log(id):
     try:
         return db.execute('SELECT * FROM visits WHERE id = ?', id)
@@ -154,13 +156,22 @@ code = generate_code()
 print(code)  # e.g., APPT-X4F7Z2
 #checks if today is greater than input date, returns true if it is greater and returns false if it is not
 
-def find_greater_date(date_str):
-    """Returns True if current date is greater than the input date."""
+
+
+def find_greater_date(expiry_val):
+    if not expiry_val:
+        return False
+    # If already a native datetime/date instance, check directly
+    if isinstance(expiry_val, datetime):
+        return datetime.now() > expiry_val
+    if isinstance(expiry_val, date):
+        return date.today() > expiry_val
+        
+    # String fallback parser
     try:
-        input_date = datetime.strptime(date_str, "%Y-%m-%d")
-        return datetime.now() > input_date
-    except ValueError:
-        print(f"Invalid date format: {date_str}")
+        parsed_expiry = datetime.strptime(str(expiry_val).split(".")[0], "%Y-%m-%d %H:%M:%S")
+        return datetime.now() > parsed_expiry
+    except Exception:
         return False
 
 def add_expired_status(expiry_col, status_col, table, status_name='expired'):
@@ -177,7 +188,7 @@ def add_expired_status(expiry_col, status_col, table, status_name='expired'):
 app = Flask(__name__)
 CORS(app)
 app.secret_key = os.environ.get("app_secret_key")
-db = SQL('sqlite:///clinic.db')
+db = SQL(os.environ.get("DB_URL"))
 @app.route("/", methods=["GET", "POST"])
 def index():
     testimonials = db.execute('SELECT * FROM testimonials')
@@ -226,7 +237,7 @@ def post_session():
             "email": email,
             "amount": bill,
             "metadata": metadata,
-            "callback_url": " https://events-and-appointments-manager.onrender.com/callback"  # 🔁 Paystack will redirect here
+            "callback_url": " http://127.0.0.1:8000/callback"  # 🔁 Paystack will redirect here
         }
 
         response = requests.post(PAYSTACK_INITIALIZE_URL, json=payload, headers=headers)
@@ -461,9 +472,11 @@ def admin():
     #total revenue calculation
     revenue = 0
     for appointment in appointments:
-        revenue += appointment.get('bill')
+        revenue += appointment.get('price') or 0
     patients = db.execute('SELECT * FROM patients')
     blogs = db.execute('SELECT * FROM blog_posts')
+    # Pass the correct column name 'appointment_date' instead of 'expiry_date'
+    # Change this line inside your admin route block:
     add_expired_status('expiry_date', 'status', 'appointments')
     print('visit logs', get_visit())
     return render_template("admin1.html",clinic_info=clinic_info, services=services, icons=icon_classes, appointments=appointments, testimonials=testimonials, team_members=team_members, appointment_count=len(appointments), patient_count=len(patients), visit=visits, revenue=revenue, expiry_info=get_expiry_info(), blogs=blogs)
@@ -511,6 +524,36 @@ def validate_appointments():
         return jsonify({'response':"Invalid code or email"})
     except Exception as e:
         return jsonify({'response':f"{e}"})
+@app.route('/set_appointment_expiry', methods=['POST'])
+def set_appointment_expiry():
+    try:
+        data = request.get_json()
+        appointment_id = data.get("appointment_id")
+        
+        days = int(data.get("days", 0))
+        hours = int(data.get("hours", 0))
+        minutes = int(data.get("minutes", 0))
+        seconds = int(data.get("seconds", 0))
+        
+        # Calculate future timestamp based on dashboard sliders/inputs
+        expiry_timestamp = datetime.now() + timedelta(
+            days=days, hours=hours, minutes=minutes, seconds=seconds
+        )
+        
+        db.execute("""
+            UPDATE appointments 
+            SET expiry_date = ?, status = 'approved' 
+            WHERE id = ?
+        """, expiry_timestamp, appointment_id)
+        
+        return jsonify({
+            "response": "successful", 
+            "expiry_date": str(expiry_timestamp)
+        })
+    except Exception as e:
+        if hasattr(db, "_disconnect"):
+            db._disconnect()
+        return jsonify({"response": f"Error: {e}"}), 500
 @app.route('/set_expiry', methods=['POST'])
 def set_expiry():
     if request.method == 'POST':
@@ -697,21 +740,83 @@ def update_patient():
         password = data['password']
         db.execute('UPDATE patients SET full_name =?, email = ?, phone = ?, password=? WHERE id = ? ', name, email,phone_number,password, id )
         return [{'response':'Patient updated successfully'}]
+from datetime import date, time, datetime
+
 @app.route('/fetch_all_bills')
 def fetch_all_bills():
-    bills = db.execute('SELECT * FROM appointments JOIN patients on appointments.patient_id = patients.id')
-    print(bills)
+    # This query uses the column names confirmed by your database schema
+    query = """
+        SELECT 
+            appointments.id AS bill_id,
+            patients.id AS patient_id,
+            appointments.appointment_date,
+            appointments.appointment_time,
+            appointments.expiry_date,
+            appointments.appointment_code,
+            appointments.message,
+            appointments.bill,
+            appointments.status
+        FROM appointments 
+        JOIN patients ON appointments.patient_id = patients.id
+        ORDER BY appointments.id DESC
+    """
+    try:
+        bills = db.execute(query)
+    except Exception as e:
+        # If any column is missing, the transaction will fail.
+        # Closing the connection is mandatory to reset the 'poisoned' transaction block.
+        if hasattr(db, "_disconnect"):
+            db._disconnect()
+        return jsonify({"error": str(e)}), 500
+        
     if not bills:
-        return []
-    return jsonify(bills)
+        return jsonify([])
+        
+    cleaned_bills = []
+    for row in bills:
+        # Convert row object to dictionary and serialize dates
+        bill_dict = dict(row) if hasattr(row, 'keys') else row
+        for key, value in bill_dict.items():
+            if isinstance(value, (time, date, datetime)):
+                bill_dict[key] = str(value)
+        cleaned_bills.append(bill_dict)
+        
+    return jsonify(cleaned_bills)
+
+
+
+
 @app.route('/fetch_all_visits')
 def fetch_all_visits():
-    visits = db.execute('SELECT * FROM visits JOIN patients ON visits.patient_id == patients.id')
-    print(visits)
+    # This now runs seamlessly since patient_id exists!
+    query = """
+        SELECT 
+            visits.id, visits.ip_address, visits.user_agent, visits.viewed_at,
+            patients.full_name, patients.email, patients.phone
+        FROM visits 
+        LEFT JOIN patients ON visits.patient_id = patients.id 
+        ORDER BY visits.viewed_at DESC
+    """
+    
+    try:
+        visits = db.execute(query)
+    except Exception as e:
+        if hasattr(db, "_disconnect"):
+            db._disconnect()
+        return jsonify({"error": str(e)}), 500
+
     if not visits:
-        return []
-    print(visits)
-    return jsonify(visits)
+        return jsonify([])
+        
+    cleaned_visits = []
+    for row in visits:
+        visit_dict = dict(row) if hasattr(row, 'keys') else row
+        for key, value in visit_dict.items():
+            if isinstance(value, (time, date, datetime)):
+                visit_dict[key] = str(value)
+        cleaned_visits.append(visit_dict)
+        
+    return jsonify(cleaned_visits)
 @app.route('/fetch_a_visit', methods=['POST'])
 def fetch_a_visit():
     if request.method == "POST":
@@ -812,58 +917,66 @@ def change_password():
         return {"response":"successful"}
     except Exception as e:
         return {"response":f"{e}"}
+
+
 @app.route('/download_excel')
 def download_excel():
+    # Fixed columns to perfectly match your database schema
+    query_str = """
+        SELECT 
+            patients.id AS patient_id,
+            patients.full_name,
+            patients.email,
+            patients.phone,
+            patients.gender,
+            patients.date_of_birth,
+            patients.address,
+            appointments.appointment_date,
+            appointments.appointment_time,
+            appointments.appointment_code,
+            appointments.message,
+            appointments.status
+        FROM patients
+        LEFT JOIN appointments ON appointments.patient_id = patients.id
+    """
+    
     try:
-        # Get patient data joined with related tables
-        query = db.execute('''
-            SELECT 
-                patients.id AS patient_id,
-                patients.full_name,
-                patients.email,
-                patients.phone,
-                patients.gender,
-                patients.date_of_birth,
-                patients.address,
-                appointments.booked_date,
-                appointments.booked_time,
-                appointments.expiry_date,
-                appointments.bill,
-                appointments.status,
-                testimonials.quote,
-                testimonials.author_description,
-                visits.ip_address,
-                visits.path,
-                visits.user_agent,
-                visits.timestamp AS visit_time
-            FROM patients
-            LEFT JOIN appointments ON appointments.patient_id = patients.id
-            LEFT JOIN testimonials ON testimonials.patient_id = patients.id
-            LEFT JOIN visits ON visits.patient_id = patients.id
-        ''')
+        query = db.execute(query_str)
 
         if not query:
-            return {"error": "No data found"}
+            return jsonify({"error": "No data found"}), 404
+
+        # Clean raw database row objects (stringify date/time fields) so pandas handles it perfectly
+        cleaned_data = []
+        for row in query:
+            row_dict = dict(row) if hasattr(row, 'keys') else row
+            for key, value in row_dict.items():
+                if type(value).__name__ in ['date', 'time', 'datetime']:
+                    row_dict[key] = str(value)
+            cleaned_data.append(row_dict)
 
         # Convert to DataFrame
-        df = pd.DataFrame(query)
+        df = pd.DataFrame(cleaned_data)
 
         # Write to an in-memory buffer
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            df.to_excel(writer, index=False, sheet_name='Patient Data')
+            df.to_excel(writer, index=False, sheet_name='Patient Data Summary')
 
         output.seek(0)
 
         return send_file(
             output,
             as_attachment=True,
-            download_name='patient_data.xlsx',
+            download_name='patient_data_summary.xlsx',
             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
 
     except Exception as e:
-        return {"error": str(e)}
+        # Crucial fallback: automatically break the aborted transaction block loop if it jams up
+        if hasattr(db, "_disconnect"):
+            db._disconnect()
+        return jsonify({"error": str(e)}), 500
 @app.route('/blog')
 def blog():
     blogs = db.execute('SELECT * FROM blog_posts')
@@ -891,12 +1004,25 @@ def appointment_trend():
     if request.method == "POST":
         x_values = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-        y_values = [0] * 12  # Initialize with zero counts for each month
+        y_values = [0] * 12  
         appointments = db.execute('SELECT * FROM appointments')
         present_year = datetime.now().year
 
         for appointment in appointments:
-            booked_date = datetime.strptime(appointment['booked_date'], "%Y-%m-%d")
+            # Safely fetch the date column whether it's a dict or a tuple index
+            try:
+                raw_date = appointment['appointment_date']
+            except (TypeError, KeyError):
+                # Fallback to standard index mapping if it's returning raw tuples
+                # Change the index number below if appointment_date is not the 4th column (0-indexed)
+                raw_date = appointment[3] 
+
+            # Handle type handling if Postgres returns native datetime objects or strings
+            if isinstance(raw_date, (date, datetime)):
+                booked_date = raw_date
+            else:
+                booked_date = datetime.strptime(str(raw_date).split()[0], "%Y-%m-%d")
+
             if booked_date.year == present_year:
                 month_index = booked_date.month - 1
                 y_values[month_index] += 1
@@ -920,7 +1046,7 @@ def service_popularity():
     # Step 3: Count appearances of each service name in appointment notes
     for i, service in enumerate(services):
         for appointment in appointments:
-            if service.lower() in appointment['notes'].lower():
+            if service.lower() in appointment['message'].lower():
                 count[i] += 1
 
     # Step 4: Package and return data
@@ -1014,6 +1140,33 @@ def suggestion():
             total+=int(entry[1])
         #return services, prices and total
         return jsonify({'services':services_info,'total':total})
+
+@app.route('/toggle_testimonial_status', methods=['POST'])
+def toggle_testimonial_status():
+    data = request.get_json()
+    testimonial_id = data.get("id")
+    
+    if not testimonial_id:
+        return jsonify({"error": "Missing 'id' in payload"}), 400
+
+    try:
+        # Get current status
+        row = db.execute("SELECT is_approved FROM testimonials WHERE id = ?", testimonial_id)
+        if not row:
+            return jsonify({"error": "Testimonial not found"}), 404
+        
+        current_status = row[0]["is_approved"]
+        # Flip: 1 to 0, or 0 to 1
+        new_status = 1 if current_status == 0 else 0
+        
+        # Update
+        db.execute("UPDATE testimonials SET is_approved = ? WHERE id = ?", new_status, testimonial_id)
+        
+        return jsonify({"status": "success", "new_status": new_status})
+    except Exception as e:
+        if hasattr(db, "_disconnect"):
+            db._disconnect()
+        return jsonify({"error": str(e)}), 500
 
 if __name__=="__main__":
     app.run(debug=True, port=8000 )

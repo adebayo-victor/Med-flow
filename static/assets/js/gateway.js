@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
             quote: document.querySelector('#testimonial_quote_input').value
         };
     
-        fetch("https://events-and-appointments-manager.onrender.com/post_testimonial", {
+        fetch("http://127.0.0.1:8000/post_testimonial", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

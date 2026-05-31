@@ -420,7 +420,7 @@
             <a href="#gallery" class="block px-4 py-2 text-white hover:bg-[#2C2C40] transition-colors duration-300">Gallery</a>
             <a href="#testimonials" class="block px-4 py-2 text-white hover:bg-[#2C2C40] transition-colors duration-300">Testimonials</a>
             <a href="#contact" class="block px-4 py-2 text-white hover:bg-[#2C2C40] transition-colors duration-300">Contact</a>
-            <a href=" https://events-and-appointments-manager.onrender.com/blog" class="block px-4 py-2 text-white hover:bg-[#2C2C40] transition-colors duration-300">Blog</a>
+            <a href=" http://127.0.0.1:8000/blog" class="block px-4 py-2 text-white hover:bg-[#2C2C40] transition-colors duration-300">Blog</a>
             <a href="#" id="myAppointmentsNavLink" class="block px-4 py-2 text-white hover:bg-[#2C2C40] transition-colors duration-300">My Appointments</a>
             <button id="mobileLogoutButton" class="block w-full text-left px-4 py-2 text-white hover:bg-[#2C2C40] transition-colors duration-300 bg-transparent border border-[#E00000] rounded-full mt-2">Logout</button>
         </div>
@@ -1047,7 +1047,7 @@
                     const password = document.getElementById('login_password').value;
 
                     try {
-                        const response = await fetch(' https://events-and-appointments-manager.onrender.com/login', { // Replace with your actual login endpoint
+                        const response = await fetch(' http://127.0.0.1:8000/login', { // Replace with your actual login endpoint
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -1095,7 +1095,7 @@
                     const password = document.getElementById('signup_password').value;
 
                     try {
-                        const response = await fetch(' https://events-and-appointments-manager.onrender.com/signup', { // Replace with your actual signup endpoint
+                        const response = await fetch(' http://127.0.0.1:8000/signup', { // Replace with your actual signup endpoint
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -1141,7 +1141,7 @@
                     testimonialMessage.style.color = 'gray';
 
                     try {
-                        const response = await fetch(' https://events-and-appointments-manager.onrender.com/post_testimonial', {
+                        const response = await fetch(' http://127.0.0.1:8000/post_testimonial', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -1259,7 +1259,7 @@
                     forgotPasswordSuccessMessage.classList.add('hidden');
 
                     try {
-                        const response = await fetch(' https://events-and-appointments-manager.onrender.com/get_otp', {
+                        const response = await fetch(' http://127.0.0.1:8000/get_otp', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ id: userEmailForOtp }) // 'id' is the email
@@ -1304,7 +1304,7 @@
 
                     try {
                         // Step 1: Validate OTP
-                        const validateOtpResponse = await fetch(' https://events-and-appointments-manager.onrender.com/validate_otp', {
+                        const validateOtpResponse = await fetch(' http://127.0.0.1:8000/validate_otp', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ id: userEmailForOtp, otp: otp })
@@ -1348,7 +1348,7 @@
                     otpInput.value = ''; // Clear previous OTP
 
                     try {
-                        const response = await fetch(' https://events-and-appointments-manager.onrender.com/get_otp', {
+                        const response = await fetch(' http://127.0.0.1:8000/get_otp', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ id: userEmailForOtp })
@@ -1409,7 +1409,7 @@
 
                     try {
                         // This is the call to the backend for changing the password
-                        const response = await fetch(' https://events-and-appointments-manager.onrender.com/change_password', {
+                        const response = await fetch(' http://127.0.0.1:8000/change_password', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ id: userEmailForOtp, password: newPassword }) // 'id' is the email, 'password' is the new password

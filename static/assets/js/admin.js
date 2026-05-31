@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 hours: clinicHours.value
             };
         
-            fetch(" https://events-and-appointments-manager.onrender.com/update_clinic_info", {
+            fetch(" http://127.0.0.1:8000/update_clinic_info", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
             // Handle Delete Service
             if (target.classList.contains('service-delete')) {
                 const payload = { id: serviceId };
-                fetch(" https://events-and-appointments-manager.onrender.com/delete_service", {
+                fetch(" http://127.0.0.1:8000/delete_service", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 icon_class: document.getElementById('edit_service_icon').value // Include icon class in update
             };
         
-            fetch(" https://events-and-appointments-manager.onrender.com/update_service", {
+            fetch(" http://127.0.0.1:8000/update_service", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 icon_class: iconName // Use the selected iconName
             };
         
-            fetch(" https://events-and-appointments-manager.onrender.com/add_service", {
+            fetch(" http://127.0.0.1:8000/add_service", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -337,7 +337,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 id:event.target.closest('tr').getAttribute('appointment-id')
             };
         
-            fetch(" https://events-and-appointments-manager.onrender.com/fetch_appointments", {
+            fetch(" http://127.0.0.1:8000/fetch_appointments", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -397,7 +397,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 email:document.querySelector('#appointment-email').value
             };
         
-            fetch(" https://events-and-appointments-manager.onrender.com/validate_appointment", {
+            fetch(" http://127.0.0.1:8000/validate_appointment", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -436,7 +436,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 seconds:expirySeconds.value
             };
         
-            fetch(" https://events-and-appointments-manager.onrender.com/set_expiry", {
+            fetch(" http://127.0.0.1:8000/set_expiry", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -476,7 +476,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
             // Handle Delete Member
             if (target.classList.contains('member-delete-btn') || target.id === 'member_delete') { // Check for class or ID
                 const payload = { id: memberId };
-                fetch(" https://events-and-appointments-manager.onrender.com/delete_member", {
+                fetch(" http://127.0.0.1:8000/delete_member", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
@@ -520,7 +520,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 image_url:document.querySelector('#member_image').value,
             };
         
-            fetch(" https://events-and-appointments-manager.onrender.com/add_member", {
+            fetch(" http://127.0.0.1:8000/add_member", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -588,7 +588,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 input: searchInput.value
             };
         
-            fetch(" https://events-and-appointments-manager.onrender.com/search_appointment", {
+            fetch(" http://127.0.0.1:8000/search_appointment", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -643,7 +643,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
             payload = {
                 id: event.target.getAttribute('blog_id')
             }
-            fetch(" https://events-and-appointments-manager.onrender.com/delete_blog", {
+            fetch(" http://127.0.0.1:8000/delete_blog", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -671,7 +671,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     })
     //here is where the chart magic happens
     //obtaining the data
-    fetch(" https://events-and-appointments-manager.onrender.com/appointment_trend", {
+    fetch(" http://127.0.0.1:8000/appointment_trend", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -718,7 +718,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         console.error("Fetch error:", error);
     });
     //service popularity
-    fetch(" https://events-and-appointments-manager.onrender.com/service_popularity")
+    fetch(" http://127.0.0.1:8000/service_popularity")
     .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
