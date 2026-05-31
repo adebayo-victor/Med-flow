@@ -1168,5 +1168,7 @@ def toggle_testimonial_status():
             db._disconnect()
         return jsonify({"error": str(e)}), 500
 
-if __name__=="__main__":
-    app.run(debug=True, port=8000 )
+if __name__ == '__main__':
+    # Get the port from environment, default to 10000 if not found
+    port = int(os.environ.get('PORT', 10000))
+    app.run(host='0.0.0.0', port=port)
