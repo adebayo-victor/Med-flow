@@ -254,14 +254,11 @@ def post_session():
         return {"error": str(e)}
 
 
-# 🔁 Step 2: Payment verification callback
+# 🔁 Step 2: Payment verification callback  
 @app.route('/callback')
 def callback():
-    reference = request.args.get('reference')
-
-    headers = {
-        "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}"
-    }
+    reference = request.args.get('reference')   
+    headers = {"Authorization": f"Bearer {PAYSTACK_SECRET_KEY}"}
 
     res = requests.get(f"https://api.paystack.co/transaction/verify/{reference}", headers=headers)
     response_data = res.json()
@@ -279,31 +276,30 @@ def callback():
             limit = int(next(reader)[0])
 
         # Patient check
-        print(metadata['email'])
         existing_patient = db.execute('SELECT * FROM patients WHERE email = ?', metadata['email'])
         if not existing_patient:
             return {"error": "Patient not in database"}
 
-        # Expiry, date & time stuff
+        # Calculate values
         expiry_date = (datetime.now() + timedelta(days=limit)).strftime('%Y-%m-%d')
         booked_date = datetime.now().strftime('%Y-%m-%d')
         booked_time = datetime.now().strftime('%H:%M')
-        note = f'''
-            Services: {metadata['services']}
-            Message: {metadata['symptoms']}
-            Bill: {int(metadata['bill']) / 100:.2f}
-        '''
+        note = f"Services: {metadata['services']}\nMessage: {metadata['symptoms']}\nBill: {int(metadata['bill']) / 100:.2f}"
 
-        db.execute(
-            '''INSERT INTO appointments (patient_id, booked_date, booked_time, status, notes, expiry_date, appointment_code, bill) 
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+        # FIX: Ensure column names match schema (specifically 'appointment_date' instead of 'booked_date')
+        db.execute('''
+            INSERT INTO appointments (patient_id, appointment_date, appointment_time, status, notes, expiry_date, appointment_code, bill) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
             existing_patient[0]['id'], booked_date, booked_time, 'valid', note, expiry_date, generate_code(), int(metadata['bill']) / 100
         )
 
-        return render_template('success.html')  # or return a JSON response
+        return render_template('success.html')
 
-    except IndexError as e:
-        return {"error": str(e)}
+    except Exception as e:
+        # SAFETY: Clear the poisoned transaction state
+        db.execute("ROLLBACK")
+        print(f"CRITICAL ERROR in callback: {e}")
+        return {"error": "Internal database error"}, 500    
 
         
 @app.route("/update_clinic_info", methods=['POST'])
@@ -676,7 +672,7 @@ def login():
 @app.route('/signup', methods=['POST'])
 def signup():
     try:
-        if request.method == 'POST':
+        if request.method == 'POST':    
             data = request.get_json()
             print(data)
             name = data['full_name']
@@ -716,7 +712,7 @@ def my_appointments(user_id):
             valid += 1
     for appointment in appointments:
         if appointment['status'] == 'expired':
-            expired += 1
+            expired += 1    
     return render_template('user.html', user=user, appointments=new_appointments, valid_count=valid, expired_count=expired, used_count=used)
 @app.route('/fetch_all_patients')
 def fetch_all_patients():
